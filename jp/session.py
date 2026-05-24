@@ -147,7 +147,8 @@ def configure_server() -> None:
         _tmux_silent(["unbind-key", key])
         _tmux_silent(["bind-key", key] + cmd)
     _tmux_silent(["unbind-key", "x"])
-    _tmux_silent(["set-hook", "-g", "after-kill-pane", "select-layout tiled"])
+    _tmux_silent(["set-hook", "-g", "after-kill-pane",
+                  f"run-shell 'python3 {_JP_PY} _binder relayout #{{session_name}}'"])
 
     # 1–8 → switch to pane by number
     for i in range(1, 9):
@@ -193,6 +194,10 @@ def pane_count(name: str) -> int:
     return len(lines)
 
 
+def _layout(count: int) -> str:
+    return "even-vertical" if count <= 2 else "tiled"
+
+
 def add_pane(name: str, cmd: str = None) -> int:
     count = pane_count(name)
     if count >= MAX_PANES:
@@ -201,7 +206,7 @@ def add_pane(name: str, cmd: str = None) -> int:
 
     last = count - 1
     _tmux(["split-window", "-t", f"{name}:0.{last}", "-h", "-c", JARVIS_DIR, "zsh"])
-    _tmux(["select-layout", "-t", f"{name}:0", "tiled"])
+    _tmux(["select-layout", "-t", f"{name}:0", _layout(count + 1)])
 
     new_idx = count
     if cmd:
@@ -234,17 +239,15 @@ def restart_inplace(name: str, snapshot: dict) -> None:
     panes_data = snapshot.get("panes", [])
     target_count = len(panes_data)
 
-    current = pane_count(name)
     while pane_count(name) < target_count:
         last = pane_count(name) - 1
         _tmux(["split-window", "-t", f"{name}:0.{last}", "-h", "-c", JARVIS_DIR, "zsh"])
-        _tmux(["select-layout", "-t", f"{name}:0", "tiled"])
 
     while pane_count(name) > target_count:
         extra = pane_count(name) - 1
         _tmux_silent(["kill-pane", "-t", f"{name}:0.{extra}"])
 
-    _tmux_silent(["select-layout", "-t", f"{name}:0", "tiled"])
+    _tmux_silent(["select-layout", "-t", f"{name}:0", _layout(target_count)])
 
     for p_data in panes_data:
         idx = p_data["index"]

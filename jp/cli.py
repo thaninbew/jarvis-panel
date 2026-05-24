@@ -376,6 +376,13 @@ def _binder(subcommand, session, pane):
         else:
             snapshot = sess.load_snapshot(session, 0)
         sess.restart_inplace(session, snapshot)
+    elif subcommand == "relayout":
+        count = sess.pane_count(session)
+        import subprocess
+        subprocess.run(
+            ["tmux", "-L", sess.TMUX_SOCKET, "select-layout", "-t", f"{session}:0", sess._layout(count)],
+            check=False, capture_output=True
+        )
     elif subcommand == "savekill":
         sess.save_snapshot(session)
         sess.kill_session(session)
