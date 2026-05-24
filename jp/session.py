@@ -122,7 +122,7 @@ def configure_server() -> None:
     _tmux_silent(["set-option", "-g", "status-left-length", "60"])
     _tmux_silent([
         "set-option", "-g", "status-right",
-        "#[fg=#888888]^B n add · ^B N claude · ^B s sum · ^B S sum-all · ^B c toggle · ^B r reset · ^B R restart · ^B w close · ^B q save+quit · ^B Q quit "
+        "#[fg=#888888]^B n · ^B N claude · ^B s sum · ^B S all · ^B c toggle · ^B r reset · ^B R restart · ^B w close · ^B q save+quit · ^B Q quit "
     ])
     _tmux_silent(["set-option", "-g", "status-right-length", "120"])
     _tmux_silent(["set-option", "-g", "status-justify", "left"])
@@ -138,7 +138,7 @@ def configure_server() -> None:
         ("S", ["run-shell", "-b", f"python3 {_JP_PY} _binder summarize-all #{{session_name}}"]),
         ("c", ["run-shell", f"python3 {_JP_PY} _binder cycle #{{session_name}}"]),
         ("r", ["run-shell", "-b", f"python3 {_JP_PY} _binder reset #{{session_name}} #{{pane_index}}"]),
-        ("R", ["run-shell", "-b", f"python3 {_JP_PY} _binder restart #{{session_name}}"]),
+        ("R", ["run-shell", "-b", f"python3 {_JP_PY} _binder restart #{{session_name}} 0 #{{client_tty}}"]),
         ("w", ["kill-pane"]),
         ("q", ["run-shell", f"python3 {_JP_PY} _binder savekill #{{session_name}}"]),
         ("Q", ["kill-session"]),
@@ -222,6 +222,10 @@ def set_pane_option(name: str, pane: int, key: str, value: str) -> None:
         ["set-option", "-p", "-t", f"{name}:0.{pane}", key, value],
         check=False
     )
+
+
+def switch_client(client: str, target: str) -> None:
+    _tmux_silent(["switch-client", "-c", client, "-t", target])
 
 
 def reset_pane(name: str, pane: int) -> None:

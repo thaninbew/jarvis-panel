@@ -347,7 +347,8 @@ def list_configs_cmd():
 @click.argument("subcommand")
 @click.argument("session")
 @click.argument("pane", required=False, type=int)
-def _binder(subcommand, session, pane):
+@click.argument("client", required=False, default=None)
+def _binder(subcommand, session, pane, client):
     """Internal: called by tmux keybindings."""
     if not sess.session_exists(session):
         return
@@ -370,9 +371,11 @@ def _binder(subcommand, session, pane):
         sess.reset_pane(session, pane)
         summ.clear_summary(session, pane)
     elif subcommand == "restart":
-        path = sess.save_snapshot(session)
+        sess.save_snapshot(session)
         sess.kill_session(session)
         _resume_one(session, version=0, attach=False)
+        if client:
+            sess.switch_client(client, session)
     elif subcommand == "savekill":
         sess.save_snapshot(session)
         sess.kill_session(session)
