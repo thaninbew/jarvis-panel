@@ -140,6 +140,24 @@ def kill(session_name, no_save):
 
 @main.command()
 @click.argument("session_name", required=False)
+def restart(session_name):
+    """Save snapshot, kill session, and immediately resume it."""
+    name = session_name or sess.most_recent_session()
+    if not name:
+        click.echo("[jp] no active jp sessions", err=True)
+        sys.exit(1)
+    if not sess.session_exists(name):
+        click.echo(f"[jp] session '{name}' not found", err=True)
+        sys.exit(1)
+    path = sess.save_snapshot(name)
+    click.echo(f"[jp] snapshot saved" if path else "[jp] snapshot unchanged")
+    sess.kill_session(name)
+    click.echo(f"[jp] killed {name}")
+    _resume_one(name, version=0, attach=True)
+
+
+@main.command()
+@click.argument("session_name", required=False)
 @click.option("--pane", "-p", default=None, type=int,
               help="Specific pane index (default: all panes)")
 @click.option("--lines", "-l", default=200, show_default=True,
@@ -289,6 +307,7 @@ CLI COMMANDS
   jp attach [name]          attach to a session
   jp kill [name]            save snapshot + kill session
   jp kill --no-save [name]  kill without saving
+  jp restart [name]         save + kill + resume in one shot
   jp save [name]            save snapshot without killing
   jp resume [name]          restore a saved snapshot
   jp resume --all           restore all saved snapshots
