@@ -122,7 +122,7 @@ def configure_server() -> None:
     _tmux_silent(["set-option", "-g", "status-left-length", "60"])
     _tmux_silent([
         "set-option", "-g", "status-right",
-        "#[fg=#888888]^B n · ^B N claude · ^B s sum · ^B S all · ^B c toggle · ^B r reset · ^B R restart · ^B w close · ^B q save+quit · ^B Q quit "
+        "#[fg=#888888]^B n claude · ^B N add · ^B s sum · ^B S all · ^B c toggle · ^B r reset · ^B R restart · ^B w close · ^B q save+quit · ^B Q quit "
     ])
     _tmux_silent(["set-option", "-g", "status-right-length", "120"])
     _tmux_silent(["set-option", "-g", "status-justify", "left"])
@@ -132,8 +132,8 @@ def configure_server() -> None:
 
     # Keybindings
     bindings = [
-        ("n", ["run-shell", "-b", f"python3 {_JP_PY} _binder add #{{session_name}}"]),
-        ("N", ["run-shell", "-b", f"python3 {_JP_PY} _binder claude #{{session_name}}"]),
+        ("n", ["run-shell", "-b", f"python3 {_JP_PY} _binder claude #{{session_name}}"]),
+        ("N", ["run-shell", "-b", f"python3 {_JP_PY} _binder add #{{session_name}}"]),
         ("s", ["run-shell", "-b", f"python3 {_JP_PY} _binder summarize #{{session_name}} #{{pane_index}}"]),
         ("S", ["run-shell", "-b", f"python3 {_JP_PY} _binder summarize-all #{{session_name}}"]),
         ("c", ["run-shell", f"python3 {_JP_PY} _binder cycle #{{session_name}}"]),

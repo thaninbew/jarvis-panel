@@ -318,8 +318,8 @@ CLI COMMANDS
   jp configs                list available configs
 
 TMUX KEYBINDINGS  (prefix: Ctrl+B)
-  n          add a new pane
-  N          add a new pane with claude --dangerously-skip-permissions
+  n          add a new pane with claude --dangerously-skip-permissions
+  N          add a new plain pane
   1–8        switch to pane by number
   s          summarize current pane (NIM)
   S          summarize all panes (NIM)
