@@ -325,6 +325,7 @@ TMUX KEYBINDINGS  (prefix: Ctrl+B)
   S          summarize all panes (NIM)
   c          cycle summaries: short → full popup → hidden
   r          reset current pane (fresh zsh in ~/jarvis)
+  R          restart session (save + kill + resume)
   w          close current pane
   q          save snapshot + kill session
   Q          kill session without saving
@@ -368,6 +369,10 @@ def _binder(subcommand, session, pane):
             return
         sess.reset_pane(session, pane)
         summ.clear_summary(session, pane)
+    elif subcommand == "restart":
+        path = sess.save_snapshot(session)
+        sess.kill_session(session)
+        _resume_one(session, version=0, attach=False)
     elif subcommand == "savekill":
         sess.save_snapshot(session)
         sess.kill_session(session)

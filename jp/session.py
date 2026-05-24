@@ -122,7 +122,7 @@ def configure_server() -> None:
     _tmux_silent(["set-option", "-g", "status-left-length", "60"])
     _tmux_silent([
         "set-option", "-g", "status-right",
-        "#[fg=#888888]^B n add · ^B N claude · ^B s sum · ^B S sum-all · ^B c toggle · ^B r reset · ^B w close · ^B q save+quit · ^B Q quit "
+        "#[fg=#888888]^B n add · ^B N claude · ^B s sum · ^B S sum-all · ^B c toggle · ^B r reset · ^B R restart · ^B w close · ^B q save+quit · ^B Q quit "
     ])
     _tmux_silent(["set-option", "-g", "status-right-length", "120"])
     _tmux_silent(["set-option", "-g", "status-justify", "left"])
@@ -138,6 +138,7 @@ def configure_server() -> None:
         ("S", ["run-shell", "-b", f"python3 {_JP_PY} _binder summarize-all #{{session_name}}"]),
         ("c", ["run-shell", f"python3 {_JP_PY} _binder cycle #{{session_name}}"]),
         ("r", ["run-shell", "-b", f"python3 {_JP_PY} _binder reset #{{session_name}} #{{pane_index}}"]),
+        ("R", ["run-shell", "-b", f"python3 {_JP_PY} _binder restart #{{session_name}}"]),
         ("w", ["kill-pane"]),
         ("q", ["run-shell", f"python3 {_JP_PY} _binder savekill #{{session_name}}"]),
         ("Q", ["kill-session"]),
