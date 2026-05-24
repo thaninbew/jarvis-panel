@@ -253,7 +253,7 @@ def restart_inplace(name: str, snapshot: dict) -> None:
         claude_id = p_data.get("claude_session_id")
         summary_full = p_data.get("summary_full") or ""
 
-        _tmux(["respawn-pane", "-k", "-c", _shlex.quote(cwd), "-t", f"{name}:0.{idx}"], check=False)
+        _tmux(["respawn-pane", "-k", "-c", cwd, "-t", f"{name}:0.{idx}"], check=False)
         _tmux_silent(["send-keys", "-t", f"{name}:0.{idx}", f"cd {_shlex.quote(cwd)}", "Enter"])
         _tmux_silent(["select-pane", "-t", f"{name}:0.{idx}", "-T", title])
 
@@ -264,6 +264,8 @@ def restart_inplace(name: str, snapshot: dict) -> None:
             _tmux_silent(["send-keys", "-t", f"{name}:0.{idx}",
                           f"claude --resume {_shlex.quote(claude_id)} --dangerously-skip-permissions",
                           "Enter"])
+
+    configure_server()
 
 
 def reset_pane(name: str, pane: int) -> None:
