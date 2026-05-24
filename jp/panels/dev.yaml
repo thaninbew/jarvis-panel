@@ -1,0 +1,11 @@
+name: dev
+layout: 4
+panes:
+  - cmd: ""
+    label: "Shell"
+  - cmd: ""
+    label: "Editor"
+  - cmd: ""
+    label: "Logs"
+  - cmd: ""
+    label: "Monitor"

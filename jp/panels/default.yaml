@@ -1,0 +1,5 @@
+name: default
+layout: 1
+panes:
+  - cmd: ""
+    label: "Shell"
