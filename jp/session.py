@@ -138,7 +138,7 @@ def configure_server() -> None:
         ("S", ["run-shell", "-b", f"python3 {_JP_PY} _binder summarize-all #{{session_name}}"]),
         ("c", ["run-shell", f"python3 {_JP_PY} _binder cycle #{{session_name}}"]),
         ("r", ["run-shell", "-b", f"python3 {_JP_PY} _binder reset #{{session_name}} #{{pane_index}}"]),
-        ("R", ["run-shell", "-b", f"python3 {_JP_PY} _binder restart #{{session_name}} 0 #{{client_tty}}"]),
+        ("R", ["run-shell", "-b", f"python3 {_JP_PY} _binder restart #{{session_name}}"]),
         ("w", ["kill-pane"]),
         ("q", ["run-shell", f"python3 {_JP_PY} _binder savekill #{{session_name}}"]),
         ("Q", ["kill-session"]),
@@ -226,6 +226,44 @@ def set_pane_option(name: str, pane: int, key: str, value: str) -> None:
 
 def switch_client(client: str, target: str) -> None:
     _tmux_silent(["switch-client", "-c", client, "-t", target])
+
+
+def restart_inplace(name: str, snapshot: dict) -> None:
+    """Respawn all panes to saved snapshot state without killing the session."""
+    import shlex as _shlex
+    panes_data = snapshot.get("panes", [])
+    target_count = len(panes_data)
+
+    current = pane_count(name)
+    while pane_count(name) < target_count:
+        last = pane_count(name) - 1
+        _tmux(["split-window", "-t", f"{name}:0.{last}", "-h", "-c", JARVIS_DIR, "zsh"])
+        _tmux(["select-layout", "-t", f"{name}:0", "tiled"])
+
+    while pane_count(name) > target_count:
+        extra = pane_count(name) - 1
+        _tmux_silent(["kill-pane", "-t", f"{name}:0.{extra}"])
+
+    _tmux_silent(["select-layout", "-t", f"{name}:0", "tiled"])
+
+    for p_data in panes_data:
+        idx = p_data["index"]
+        cwd = p_data.get("cwd") or JARVIS_DIR
+        title = p_data.get("title") or f"Pane {idx}"
+        claude_id = p_data.get("claude_session_id")
+        summary_full = p_data.get("summary_full") or ""
+
+        _tmux(["respawn-pane", "-k", "-c", _shlex.quote(cwd), "-t", f"{name}:0.{idx}"], check=False)
+        _tmux_silent(["send-keys", "-t", f"{name}:0.{idx}", f"cd {_shlex.quote(cwd)}", "Enter"])
+        _tmux_silent(["select-pane", "-t", f"{name}:0.{idx}", "-T", title])
+
+        if summary_full:
+            _tmux_silent(["set-option", "-p", "-t", f"{name}:0.{idx}", "@summary_full", summary_full])
+
+        if claude_id:
+            _tmux_silent(["send-keys", "-t", f"{name}:0.{idx}",
+                          f"claude --resume {_shlex.quote(claude_id)} --dangerously-skip-permissions",
+                          "Enter"])
 
 
 def reset_pane(name: str, pane: int) -> None:
